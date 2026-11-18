@@ -1,10 +1,23 @@
-steps:
+name: Build 3DS CIA
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkitarm:latest
+
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install dependencies and tools
         run: |
-          apt-get update && apt-get install -y wget unzip libc6:i386 || true
+          apt-get update && apt-get install -y wget unzip
           
           # Descargar makerom
           wget -q https://github.com/3DSGuy/Project_CTR/releases/download/makerom-v0.18.4/makerom-v0.18.4-ubuntu_x86_64.zip
