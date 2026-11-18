@@ -1,48 +1,18 @@
-name: Build 3DS CIA
-
-on:
-  push:
-    branches: [ main, master ]
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    container:
-      image: devkitpro/devkitarm:latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install dependencies and tools
+- name: Install dependencies and tools
         run: |
           apt-get update && apt-get install -y wget unzip
           
-          # Descargar makerom
+          # Descargar y extraer makerom directamente en /usr/local/bin/
           wget -q https://github.com/3DSGuy/Project_CTR/releases/download/makerom-v0.18.4/makerom-v0.18.4-ubuntu_x86_64.zip
           unzip -o makerom-v0.18.4-ubuntu_x86_64.zip -d /usr/local/bin/
-          mv /usr/local/bin/makerom-v0.18.4-ubuntu_x86_64 /usr/local/bin/makerom || true
+          # Asegurar que tenga permisos de ejecución (renombrando por seguridad si es necesario)
+          if [ -f /usr/local/bin/makerom-v0.18.4-ubuntu_x86_64 ]; then
+            mv /usr/local/bin/makerom-v0.18.4-ubuntu_x86_64 /usr/local/bin/makerom
+          fi
           chmod +x /usr/local/bin/makerom
 
-          # Descargar bannertool
+          # Descargar y extraer bannertool
           wget -q https://github.com/Steveice10/bannertool/releases/download/1.2.0/bannertool.zip
           unzip -o bannertool.zip
           cp linux-x86_64/bannertool /usr/local/bin/
           chmod +x /usr/local/bin/bannertool
-
-      - name: Verify tools
-        run: |
-          makerom -version || echo "Makerom check failed"
-          bannertool -version || echo "Bannertool check failed"
-
-      - name: Build 3DSX and CIA
-        run: make cia
-
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: WaveDash3DS-CIA
-          path: |
-            *.cia
-            *.3dsx
