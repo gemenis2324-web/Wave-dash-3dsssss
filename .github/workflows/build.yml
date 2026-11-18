@@ -15,28 +15,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies and tools
+      - name: Install 3DS Tools via Pacman
         run: |
-          apt-get update && apt-get install -y wget unzip
-          
-          # Descargar y extraer makerom
-          wget -q https://github.com/3DSGuy/Project_CTR/releases/download/makerom-v0.18.4/makerom-v0.18.4-ubuntu_x86_64.zip
-          unzip -o makerom-v0.18.4-ubuntu_x86_64.zip -d /usr/local/bin/
-          if [ -f /usr/local/bin/makerom-v0.18.4-ubuntu_x86_64 ]; then
-            mv /usr/local/bin/makerom-v0.18.4-ubuntu_x86_64 /usr/local/bin/makerom
-          fi
-          chmod +x /usr/local/bin/makerom
-
-          # Descargar y extraer bannertool
-          wget -q https://github.com/Steveice10/bannertool/releases/download/1.2.0/bannertool.zip
-          unzip -o bannertool.zip
-          cp linux-x86_64/bannertool /usr/local/bin/
-          chmod +x /usr/local/bin/bannertool
+          dkp-pacman -Syu --noconfirm || true
+          dkp-pacman -S --noconfirm 3dstools
 
       - name: Verify tools
         run: |
-          makerom -version || echo "Makerom check failed"
-          bannertool -version || echo "Bannertool check failed"
+          makerom -version
+          bannertool -version
 
       - name: Build 3DSX and CIA
         run: make cia
